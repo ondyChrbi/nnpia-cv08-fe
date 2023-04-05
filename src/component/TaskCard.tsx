@@ -17,8 +17,8 @@ const TaskCard = ({task, onTaskDone} : Props) => {
     return <div>
         <h2>{task.title}</h2>
         <p>{task.description}</p>
-        <p>{task.creationDate.toISOString()}</p>
-        <p>{task.updateDate?.toISOString()}</p>
+        <p>{new Date(task.creationDate).toISOString()}</p>
+        <p>{(task.updateDate) && new Date(task.updateDate).toISOString()}</p>
         <br />
         <label>Splněno</label>
         <input type="checkbox" checked={task.done} name="done" onChange={doneClickHandle} />

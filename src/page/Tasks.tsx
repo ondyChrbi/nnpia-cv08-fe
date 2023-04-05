@@ -1,25 +1,38 @@
-import TaskCard from "../component/TaskCard";
-import {Task, tasks} from "../data/init-data";
-import {useState} from "react";
+import TaskList from "../component/TaskList";
+import {Task} from "../data/init-data";
+import {useEffect, useState} from "react";
 
 const Tasks = () => {
-    const [taskList, setTaskList] = useState<Array<Task>>(tasks);
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean | null>(true);
 
-    const taskDoneHandle = (task: Task) => {
-        console.log("Changing state of reactive variable");
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-        setTaskList( [...taskList] );
-    }
+    const fetchData = async () => {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL;
+        let response = null;
+
+        try {
+            response = await fetch(`${backendUrl}/task`);
+        } catch (e : any) {
+            setError(e.message);
+            setTasks([]);
+        }
+
+        setLoading(false);
+        if (response && response.ok) {
+            const tasks = await response.json();
+            setTasks(tasks);
+        }
+    };
 
     return <div>
-        <h1>Aktuální tasky</h1>
-        {taskList.filter(t => !t.done).map(t =>
-            <TaskCard key={t.id} task={t} onTaskDone={taskDoneHandle} />
-        )}
-        <h1>Splněné tasky</h1>
-        {taskList.filter(t => t.done).map(t =>
-            <TaskCard key={t.id} task={t} onTaskDone={taskDoneHandle} />
-        )}
+        {error && <div className="alert alert-danger">{error}</div>}
+        {loading && <div className="alert alert-danger">loading</div>}
+        <TaskList tasks={tasks} />
     </div>
 };
 
